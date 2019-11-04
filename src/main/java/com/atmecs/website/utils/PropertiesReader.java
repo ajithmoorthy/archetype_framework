@@ -19,13 +19,13 @@ public class PropertiesReader {
 	 * @param path
 	 * and read the value from the properties file.
 	 * and stored in properties Object. 
-	 *  finally @return the Property object.
+	 * finally @return the Property object.
 	 * @throws IOException
 	 */
-	public  Properties KeyValueLoader(String path) throws IOException {
-		File file = new File(path);
+	public  Properties keyValueLoader(String path) throws IOException {
+		File propertyfile = new File(path);
 		Properties property = new Properties();
-		FileInputStream input = new FileInputStream(file);
+		FileInputStream input = new FileInputStream(propertyfile);
 		property.load(input);
 		return property;
 	}

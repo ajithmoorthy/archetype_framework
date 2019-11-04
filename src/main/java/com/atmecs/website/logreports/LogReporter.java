@@ -3,11 +3,13 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.atmecs.website.constants.FileConstants;
+import com.atmecs.website.extentreport.Extent;
+import com.relevantcodes.extentreports.LogStatus;
 /**
- * logReporter class is used for the implement log 4j
+ *  This logReporter class is used for the implement log 4j
  * and captured the actions which is performed in testscripts 
  */
-public class LogReporter {
+public class LogReporter extends Extent {
 	Logger logger = null;
 	/**
 	 * This logReportMessage method is load the log4j.properties file to store the log details of the test script
@@ -19,6 +21,8 @@ public class LogReporter {
 		PropertyConfigurator.configure(FileConstants.LOG4J_CONFIG_PROPERTY_PATH);
 		logger = Logger.getLogger(LogReporter.class.getName());
 		logger.info(message);
+		extentlogger.log(LogStatus.INFO,message);
+		
 	}
 }
 

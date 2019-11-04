@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -14,6 +15,8 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.Wait;
+
+import com.atmecs.website.constants.FileConstants;
 
 /**
  * This SeleniumHelper class is used to help or provide the predefined program  or method for the Selenium automation.
@@ -30,10 +33,10 @@ import org.openqa.selenium.support.ui.Wait;
 
 
 public class SeleniumHelper {
-	//LogReporter log=new LogReporter();
+	WaitForElement wait=new WaitForElement();
 	By by;
 	/**
-	 * This method take input as below parameters:
+	 * This matchElement method take input as below parameters:
 	 * @param locators
 	 * and perform the separate the locators and options.
 	 * using that locators create the Object of By class
@@ -71,32 +74,21 @@ public class SeleniumHelper {
 		return by;
 	}
 	/**
-	 * clickElement method take the below inputs  
+	 * This clickElement method take the below inputs  
 	 * @param webdriver
 	 * @param locator
 	 * and perform the click Operation.
 	 */
 	public void clickElement(WebDriver webdriver,String locator) {
 		try {
-			@SuppressWarnings("deprecation")
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(webdriver)
-			.withTimeout(30, TimeUnit.SECONDS)
-			.pollingEvery(5, TimeUnit.SECONDS)
-			.ignoring(ElementClickInterceptedException.class)
-			.ignoring(NoSuchElementException.class);
-			WebElement element=wait.until(new Function<WebDriver,WebElement>() 
-			{
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(matchElement(locator));
-				}
-			});
+			WebElement element=wait.WaitForFluent(webdriver, locator);
 			element.click();
 		}catch (Exception e) {
 			System.out.println("Element is not available or not clickable");
 		}
 	}
 	/**
-	 * This method take the input of below parameters.
+	 * This sendKeys method take the input of below parameters.
 	 * @param locator
 	 * @param webdriver
 	 * @param value
@@ -104,51 +96,29 @@ public class SeleniumHelper {
 	 */
 	public void sendKeys(String locator, WebDriver webdriver,String value) {
 		try {
-			@SuppressWarnings("deprecation")
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(webdriver)
-			.withTimeout(30, TimeUnit.SECONDS)
-			.pollingEvery(5, TimeUnit.SECONDS)
-			.ignoring(ElementClickInterceptedException.class)
-			.ignoring(NoSuchElementException.class);
-			WebElement element=wait.until(new Function<WebDriver,WebElement>() 
-			{
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(matchElement(locator));
-				}
-			});
+			WebElement element=wait.WaitForFluent(webdriver, locator);
 			element.sendKeys(value);
 		}catch (Exception e) {
 			System.out.println("Element is not available or not clickable");
 		}
 	}
 	/**
-	 *This method take the below parameters:
+	 *This mouseOver method take the below parameters:
 	 * @param locator
 	 * @param webdriver
 	 * and perform the mouse over operation on the specific webElement using the Action class method moveToElement and perform.
 	 */
-	public void mouseOver(String locator,WebDriver webdriver) {	
+	public void mouseOver(WebDriver webdriver,String locator) {	
 		try {
 			Actions actions = new Actions(webdriver);
-			@SuppressWarnings("deprecation")
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(webdriver)
-			.withTimeout(30, TimeUnit.SECONDS)
-			.pollingEvery(5, TimeUnit.SECONDS)
-			.ignoring(ElementClickInterceptedException.class)
-			.ignoring(NoSuchElementException.class);
-			WebElement element=wait.until(new Function<WebDriver,WebElement>() 
-			{
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(matchElement(locator));
-				}
-			});
+			WebElement element=wait.WaitForFluent(webdriver, locator);
 			actions.moveToElement(element).perform();
 		}catch (Exception e) {
 			System.out.println("Element is not available or not clickable");
 		}
 	}
 	/**
-	 * This method take the parameters:
+	 * This dropDown method take the parameters:
 	 * @param locators
 	 * @param webdriver
 	 * @param index
@@ -156,18 +126,7 @@ public class SeleniumHelper {
 	 */
 	public void dropDown(String locators, WebDriver webdriver, int index) {
 		try {
-			@SuppressWarnings("deprecation")
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(webdriver)
-			.withTimeout(30, TimeUnit.SECONDS)
-			.pollingEvery(5, TimeUnit.SECONDS)
-			.ignoring(ElementClickInterceptedException.class)
-			.ignoring(NoSuchElementException.class);
-			WebElement element=wait.until(new Function<WebDriver,WebElement>() 
-			{
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(matchElement(locators));
-				}
-			});
+			WebElement element=wait.WaitForFluent(webdriver, locators);
 			Select select = new Select(element);
 			select.selectByIndex(index);
 		}catch (Exception e) {
@@ -193,7 +152,7 @@ public class SeleniumHelper {
 		return driver;
 	}
 	/**
-	 * This method take the below parameters.
+	 * This loginMethod method take the below parameters.
 	 * @param webdriver
 	 * @param loc_username
 	 * @param loc_password
@@ -221,8 +180,8 @@ public class SeleniumHelper {
 			Actions action=new Actions(webdriver);
 			@SuppressWarnings("deprecation")
 			Wait<WebDriver> wait = new FluentWait<WebDriver>(webdriver)
-			.withTimeout(30, TimeUnit.SECONDS)
-			.pollingEvery(5, TimeUnit.SECONDS)
+			.withTimeout(FileConstants.FLUENT_WAIT, TimeUnit.SECONDS)
+			.pollingEvery(FileConstants.FLUENT_POLL, TimeUnit.SECONDS)
 			.ignoring(NoSuchElementException.class);
 			List<WebElement> elementlist = wait.until(new Function<WebDriver, List<WebElement>>() 
 			{
@@ -232,7 +191,8 @@ public class SeleniumHelper {
 			});
 			for(WebElement  element:elementlist) {
 				System.out.println(element.getText());
-				if(element.getText().equalsIgnoreCase(value)) {
+				if(element.getText().equalsIgnoreCase(value)) 
+				{
 					action.moveToElement(element).perform();
 					element.click();
 				}
@@ -242,7 +202,7 @@ public class SeleniumHelper {
 		}
 	}
 	/**
-	 *This method take the below:
+	 *This scrollPage method take the below:
 	 * @param driver
 	 * and scroll the web page using java script Executor.
 	 */
@@ -251,7 +211,7 @@ public class SeleniumHelper {
 		js.executeScript("window.scrollBy(0,10000)");
 	}
 	/**
-	 *This method take the below:
+	 *This scrollPage method take the below:
 	 * @param driver
 	 * and scroll the web page using java script Executor.
 	 */
@@ -260,7 +220,7 @@ public class SeleniumHelper {
 		js.executeScript("window.scrollBy(0,"+index+")");
 	}
 	/**
-	 * This method take input as below parameters:
+	 * This scrollPageMethod  method take input as below parameters:
 	 * @param driver
 	 * @param locator
 	 * and perform scroll operation in web page using the javascriptExecutor. 
@@ -268,21 +228,44 @@ public class SeleniumHelper {
 	public void scrollPageMethod(WebDriver driver,String locator) {
 		try {
 			JavascriptExecutor js = ((JavascriptExecutor) driver);
-			@SuppressWarnings("deprecation")
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
-			.withTimeout(30, TimeUnit.SECONDS)
-			.pollingEvery(5, TimeUnit.SECONDS)
-			.ignoring(ElementClickInterceptedException.class)
-			.ignoring(NoSuchElementException.class);
-			WebElement element=wait.until(new Function<WebDriver,WebElement>() 
-			{
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(matchElement(locator));
-				}
-			});  
+			WebElement element=wait.WaitForFluent(driver, locator);
 			js.executeScript("arguments[0].scrollIntoView(true);", element);
 			scrollPage(driver, -200);
 		}catch(Exception e){
+			System.out.println("Element is not available or not clickable");
+		}
+	}
+	/**
+	 * This ElementPresent method take the below parameters:
+	 * @param driver
+	 * @param locator
+	 * and check the element is present or displayed 
+	 * and @return the boolean true or false.
+	 */
+	public boolean ElementPresent(WebDriver driver,String locator) 
+	{
+		boolean bool = false;
+		try {
+			wait.waitForElementToBeClickable(driver, locator);
+			bool=driver.findElement(matchElement(locator)).isDisplayed();
+		}
+		catch(Exception e){
+			System.out.println("Element is not available or not clickable");
+		}
+		return bool;
+	}
+	/**
+	 * This sendKeysEnter method take the input of below parameters.
+	 * @param locator
+	 * @param webdriver
+	 * @param enter
+	 * and send the value to the webElements using the sendKeys method.
+	 */
+	public void sendKeysEnter(String locator, WebDriver webdriver,Keys enter) {
+		try {
+			WebElement element=wait.WaitForFluent(webdriver, locator);
+			element.sendKeys(enter);
+		}catch (Exception e) {
 			System.out.println("Element is not available or not clickable");
 		}
 	}

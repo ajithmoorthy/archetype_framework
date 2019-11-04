@@ -1,26 +1,25 @@
 package com.atmecs.website.helper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Month;
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.ElementClickInterceptedException;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.Wait;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
-import com.atmecs.website.extentreport.Extent;
 import com.atmecs.website.logreports.LogReporter;
-import com.relevantcodes.extentreports.LogStatus;
-
-public class ValidaterHelper extends Extent {
+/**
+ * This ValidaterHelper class extent from the Extent class and 
+ * this class contains the assertion validation method for the web elements, time convertion methods
+ * no of elements finder method and month number finder.
+ * @author ajith.periyasamy
+ *
+ */
+public class ValidaterHelper {
 	LogReporter log=new LogReporter();
+	WaitForElement wait=new WaitForElement();
 	By by;
 	/**
 	 * This urlValidater method take the below parameters
@@ -33,11 +32,9 @@ public class ValidaterHelper extends Extent {
 		try {
 			Assert.assertEquals(Driver.getCurrentUrl(),Expected_Url);
 			log.logReportMessage("Successfully Validated the correct Url is :"+ Driver.getCurrentUrl());
-			logger.log(LogStatus.INFO,"Successfully Validated the correct Url is :" +Driver.getCurrentUrl());
 		}catch(AssertionError e) {
 			System.out.println("Navigate to wrong Webpage");
 			log.logReportMessage("Navigate to wrong Webpage");
-			logger.log(LogStatus.INFO, "Navigate to wrong Webpage");
 		}	
 	}
 	/**
@@ -51,13 +48,11 @@ public class ValidaterHelper extends Extent {
 		try {
 			Assert.assertEquals(driver.getTitle(), documentTitle);
 			log.logReportMessage("Document title is validated :"+driver.getTitle());
-			logger.log(LogStatus.INFO,"Document title is validated :" +driver.getTitle());
 		}
 		catch(AssertionError e)
 		{
 			System.out.println("Document title is not match with Expected :"+driver.getTitle());
 			log.logReportMessage("Document title is not match with Expected :"+driver.getTitle());
-			logger.log(LogStatus.INFO,"Document title is not match with Expected :"+driver.getTitle());	
 		}
 	}
 	/**
@@ -70,18 +65,7 @@ public class ValidaterHelper extends Extent {
 	public String textOfElement(WebDriver webdriver,String locator) {
 		String content = null;
 		try {
-			@SuppressWarnings("deprecation")
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(webdriver)
-			.withTimeout(30, TimeUnit.SECONDS)
-			.pollingEvery(5, TimeUnit.SECONDS)
-			.ignoring(ElementClickInterceptedException.class)
-			.ignoring(NoSuchElementException.class);
-			WebElement element=wait.until(new Function<WebDriver,WebElement>() 
-			{
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(matchElement(locator));
-				}
-			});
+			WebElement element=wait.WaitForFluent(webdriver, locator);
 			content=element.getText();
 		}catch (Exception e) {
 			System.out.println("Element is not available or not clickable");
@@ -89,7 +73,7 @@ public class ValidaterHelper extends Extent {
 		return content;
 	}
 	/**
-	 * This method take input as below parameters:
+	 * This matchElement method take input as below parameters:
 	 * @param locators
 	 * and perform the separate the locators and options.
 	 * using that locators create the Object of By class
@@ -134,8 +118,7 @@ public class ValidaterHelper extends Extent {
 	 * and validate the each web elements is present or not using assertions.
 	 */
 	public void webElementsValidater(WebDriver driver,String locators,String[] footerarray) {
-		WebDriverWait wait2 = new WebDriverWait(driver, 20);
-		wait2.until(ExpectedConditions.elementToBeClickable(matchElement(locators)));
+		wait.waitForElementToBeClickable(driver, locators);
 		List<WebElement> list=driver.findElements(matchElement(locators));
 		int count=0;
 		while(count<1) {
@@ -158,14 +141,12 @@ public class ValidaterHelper extends Extent {
 	public void assertValidater(String actual,String expected) {
 		try {
 			Assert.assertEquals(actual,expected);
-			log.logReportMessage("Actual Value :"+actual+" and Expected :"+expected+" is validated successfully");
-			logger.log(LogStatus.INFO,"Actual Value :"+actual+" and Expected :"+expected+" is validated successfully");	
+			log.logReportMessage("Actual Value :"+actual+" and Expected :"+expected+" is validated successfully");	
 		}
 		catch(AssertionError e)
 		{
 			System.out.println("Actual Value :"+actual+" not match with the Expected value :"+expected);
 			log.logReportMessage("Actual Value :"+actual+" not match with the Expected value :"+expected);
-			logger.log(LogStatus.INFO,"Actual Value :"+actual+" not match with the Expected value :"+expected);
 		}
 	}
 	/**
@@ -178,12 +159,82 @@ public class ValidaterHelper extends Extent {
 	 */
 	public boolean containsValidater(WebDriver webdriver,String locator,String expected) {
 		boolean bool=false;
-		WebElement element=webdriver.findElement(By.xpath(locator));
+		WebElement element=webdriver.findElement(matchElement(locator));
 		String content=element.getText();
 		if(content.contains(expected))
 		{
 			bool=true;
 		}
 		return bool;
+	}
+	/**
+	 * This assertValidater method take the below parameters
+	 * @param actual
+	 * @param expected
+	 * and check the actual and expected are equal or not by using the assertion.
+	 */
+	public void assertValidater(boolean actual,boolean expected) {
+		try {
+			Assert.assertEquals(actual,expected);
+			log.logReportMessage("Actual Value :"+actual+" and Expected :"+expected+" is validated successfully");
+		}
+		catch(AssertionError e)
+		{
+			System.out.println("Actual Value :"+actual+" not match with the Expected value :"+expected);
+			log.logReportMessage("Actual Value :"+actual+" not match with the Expected value :"+expected);
+		}
+	}
+	/**
+	 * This timeConverter method take the below parameters 
+	 * @param driver
+	 * @param locator
+	 * find the no of days between current date to review date for each review and stored in array.  
+	 *  finally @return the array.
+	 * @throws ParseException
+	 */
+	public int[] timeConverter(WebDriver driver,String locator) throws ParseException {
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		Date date=new Date();
+		wait.waitForElementToBeClickable(driver, locator);
+		List<WebElement> list=driver.findElements(matchElement(locator));
+		int count=0;
+		int[] datearray=new int[(list.size())];
+		for(WebElement element:list) {
+			if(count<list.size()) {
+				String[] tempdate=element.getText().split(" ");	
+				String exam=tempdate[1]+"/"+getMonthNumber(tempdate[2])+"/"+tempdate[3];
+				exam=exam.replace("\\s", "");
+				String secon=formatter.format(date);
+				Date first=formatter.parse(exam);
+				Date second=formatter.parse(secon);
+				long numdays=daysBetween(first,second);
+				if(numdays>90) {
+					System.out.println(numdays);
+					datearray[count]=(int) numdays;
+				}
+				count++;
+			}
+		}
+		return datearray;
+	}
+	/**
+	 * This  daysBetween method take the two dates:
+	 * @param one
+	 * @param two
+	 * Convert the difference between two dates 
+	 *  and @return the difference between two dates
+	 */
+	private static long daysBetween(Date one, Date two) {
+		long difference =  (one.getTime()-two.getTime())/86400000;
+		return Math.abs(difference);
+	}
+	/**
+	 * This getMonthNumber method take the below parameter
+	 * @param monthName
+	 * Covert the monthName to number
+	 * and @return integer value of the month.
+	 */
+	private int getMonthNumber(String monthName) {
+		return Month.valueOf(monthName.toUpperCase()).getValue();
 	}
 }
